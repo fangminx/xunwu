@@ -13,7 +13,6 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.persistence.EntityTransaction;
 import javax.sql.DataSource;
 
 @Configuration
@@ -27,7 +26,7 @@ public class JpaConfig {
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(){
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(){
         HibernateJpaVendorAdapter jpaVendor = new HibernateJpaVendorAdapter();
         jpaVendor.setGenerateDdl(false); //是否生成sql
 
