@@ -1,6 +1,7 @@
 package com.fangminx.config;
 
 import com.fangminx.security.AuthProvider;
+import com.fangminx.security.LoginUrlEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -32,7 +33,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .and()
                 .formLogin()
                 .loginProcessingUrl("/login") //配置角色登录处理入口
-                .and();
+                .and()
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/logout/page")
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true) //使session会话失效
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(urlEntryPoint())
+                .accessDeniedPage("/403");//无权访问的提示页面
 
         http.csrf().disable(); //防御策略
         http.headers().frameOptions().sameOrigin(); //h-ui 需要使用同源策略
@@ -55,5 +65,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     @Bean
     public AuthProvider authProvider(){
         return new AuthProvider();
+    }
+
+    // 注入基于角色的登录入口控制器
+    @Bean
+    public LoginUrlEntryPoint urlEntryPoint(){
+        return new LoginUrlEntryPoint("/user/login");
     }
 }
