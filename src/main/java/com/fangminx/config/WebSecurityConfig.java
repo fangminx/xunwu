@@ -1,6 +1,7 @@
 package com.fangminx.config;
 
 import com.fangminx.security.AuthProvider;
+import com.fangminx.security.LoginAuthFailHandler;
 import com.fangminx.security.LoginUrlEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .and()
                 .formLogin()
                 .loginProcessingUrl("/login") //配置角色登录处理入口
+                .failureHandler(authFailHandler()) //登录失败处理
                 .and()
                 .logout()
                 .logoutUrl("/logout")
@@ -71,5 +73,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     @Bean
     public LoginUrlEntryPoint urlEntryPoint(){
         return new LoginUrlEntryPoint("/user/login");
+    }
+
+    // 注入登录失败处理器
+    @Bean
+    public LoginAuthFailHandler authFailHandler() {
+        return new LoginAuthFailHandler(urlEntryPoint());
     }
 }
