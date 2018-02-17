@@ -1,6 +1,12 @@
 package com.fangminx.web.controller.admin;
 
 import com.fangminx.base.ApiResponse;
+import com.fangminx.service.IQiNiuService;
+import com.fangminx.web.dto.QiNiuPutRet;
+import com.google.gson.Gson;
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,11 +15,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Controller
 public class AdminController {
+
+    @Autowired
+    private IQiNiuService qiNiuService;
+
+    @Autowired
+    private Gson gson;
+
     @GetMapping("/admin/center")
     public String adminCenterPage(){
         return "admin/center";
@@ -40,15 +53,36 @@ public class AdminController {
         if(file.isEmpty()){
             return ApiResponse.ofStatus(ApiResponse.Status.NOT_VALID_PARAM);
         }
-        String fileName = file.getOriginalFilename();
-        File target = new File("/Users/fangmin/project/xunwu/tmp/"+fileName);
+//        String fileName = file.getOriginalFilename();
         try {
-            file.transferTo(target);
+            InputStream inputStream = file.getInputStream();
+            Response response = qiNiuService.uploadFile(inputStream);
+            if(response.isOK()){
+                QiNiuPutRet ret = gson.fromJson(response.bodyString(), QiNiuPutRet.class);
+                return ApiResponse.ofSuccess(ret);
+            }else {
+                return ApiResponse.ofMessage(response.statusCode,response.getInfo());
+            }
+        } catch (QiniuException e) {
+            Response response = e.response;
+            try {
+                return ApiResponse.ofMessage(response.statusCode,response.bodyString());
+            } catch (QiniuException e1) {
+                e1.printStackTrace();
+                return ApiResponse.ofStatus(ApiResponse.Status.INTERNAL_SERVER_ERROR);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return ApiResponse.ofStatus(ApiResponse.Status.INTERNAL_SERVER_ERROR);
         }
-
-        return ApiResponse.ofSuccess(null);
+//        File target = new File("/Users/fangmin/project/xunwu/tmp/"+fileName);
+//        try {
+//            file.transferTo(target);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return ApiResponse.ofStatus(ApiResponse.Status.INTERNAL_SERVER_ERROR);
+//        }
+//
+//        return ApiResponse.ofSuccess(null);
     }
 }
