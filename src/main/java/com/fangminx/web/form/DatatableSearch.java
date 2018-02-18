@@ -25,7 +25,7 @@ public class DatatableSearch {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createTimeMin;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date getCreateTimeMax;
+    private Date createTimeMax;
 
     private String city;
     private String title;
