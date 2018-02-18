@@ -15,6 +15,10 @@ import com.fangminx.web.form.PhotoForm;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -98,13 +102,17 @@ public class HouseServiceImpl implements IHouseService {
     @Override
     public ServiceMultiResult<HouseDTO> adminQuery(DatatableSearch searchBody) {
         List<HouseDTO> houseDTOList = new ArrayList<>();
-        Iterable<House> houses = houseRepository.findAll();
+
+        Sort sort = new Sort(Sort.Direction.fromString(searchBody.getDirection()),searchBody.getOrderBy());
+        int page = searchBody.getStart() / searchBody.getLength();
+        Pageable pageable = new PageRequest(page,searchBody.getLength(),sort);
+        Page<House> houses = houseRepository.findAll(pageable);
         houses.forEach(house -> {
             HouseDTO houseDTO = modelMapper.map(house,HouseDTO.class);
             houseDTO.setCover(this.cdnPrefix + house.getCover());
             houseDTOList.add(houseDTO);
         });
-        return new ServiceMultiResult<>(houseDTOList.size(),houseDTOList);
+        return new ServiceMultiResult<>(houses.getTotalElements(),houseDTOList);
     }
 
     /**
