@@ -4,10 +4,12 @@ import com.fangminx.base.LoginUserUtil;
 import com.fangminx.entity.*;
 import com.fangminx.repository.*;
 import com.fangminx.service.IHouseService;
+import com.fangminx.service.ServiceMultiResult;
 import com.fangminx.service.ServiceResult;
 import com.fangminx.web.dto.HouseDTO;
 import com.fangminx.web.dto.HouseDetailDTO;
 import com.fangminx.web.dto.HousePictureDTO;
+import com.fangminx.web.form.DatatableSearch;
 import com.fangminx.web.form.HouseForm;
 import com.fangminx.web.form.PhotoForm;
 import org.modelmapper.ModelMapper;
@@ -91,6 +93,18 @@ public class HouseServiceImpl implements IHouseService {
         }
 
         return new ServiceResult<HouseDTO>(true, null, houseDTO);
+    }
+
+    @Override
+    public ServiceMultiResult<HouseDTO> adminQuery(DatatableSearch searchBody) {
+        List<HouseDTO> houseDTOList = new ArrayList<>();
+        Iterable<House> houses = houseRepository.findAll();
+        houses.forEach(house -> {
+            HouseDTO houseDTO = modelMapper.map(house,HouseDTO.class);
+            houseDTO.setCover(this.cdnPrefix + house.getCover());
+            houseDTOList.add(houseDTO);
+        });
+        return new ServiceMultiResult<>(houseDTOList.size(),houseDTOList);
     }
 
     /**

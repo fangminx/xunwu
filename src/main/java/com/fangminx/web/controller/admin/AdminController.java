@@ -1,14 +1,13 @@
 package com.fangminx.web.controller.admin;
 
+import com.fangminx.base.ApiDataTableResponse;
 import com.fangminx.base.ApiResponse;
 import com.fangminx.entity.SupportAddress;
-import com.fangminx.service.IAddressService;
-import com.fangminx.service.IHouseService;
-import com.fangminx.service.IQiNiuService;
-import com.fangminx.service.ServiceResult;
+import com.fangminx.service.*;
 import com.fangminx.web.controller.house.SupportAddressDTO;
 import com.fangminx.web.dto.HouseDTO;
 import com.fangminx.web.dto.QiNiuPutRet;
+import com.fangminx.web.form.DatatableSearch;
 import com.fangminx.web.form.HouseForm;
 import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
@@ -85,6 +84,21 @@ public class AdminController {
     public String addHousePage() {
         return "admin/house-add";
     }
+
+    @PostMapping("admin/houses")
+    @ResponseBody
+    public ApiDataTableResponse houses(@ModelAttribute DatatableSearch searchBody){
+        ServiceMultiResult<HouseDTO> result = houseService.adminQuery(searchBody);
+
+        ApiDataTableResponse response = new ApiDataTableResponse(ApiResponse.Status.SUCCESS);
+        response.setData(result.getResult());
+        response.setRecordsFiltered(result.getTotal());
+        response.setRecordsTotal(result.getTotal());
+
+        response.setDraw(searchBody.getDraw());
+        return response;
+    }
+
 
     /**
      * 上传图片接口
