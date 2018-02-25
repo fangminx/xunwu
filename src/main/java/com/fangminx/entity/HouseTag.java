@@ -7,6 +7,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "house_tag")
 @Data
+@NoArgsConstructor
 public class HouseTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
