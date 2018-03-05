@@ -115,6 +115,7 @@
 			<!--<version>2.5.0</version>-->
 		<!--</dependency>-->
 
+
 		<!-- 七牛依赖 -->
 		<dependency>
 			<groupId>com.qiniu</groupId>
